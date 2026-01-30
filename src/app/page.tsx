@@ -307,18 +307,18 @@ export default function LandingPage() {
       <TrustedMarquee />
 
       {/* Features */}
-      <section ref={featuresRef} className="py-20 px-4">
+      <section ref={featuresRef} className="py-24 px-4">
         <div className="max-w-5xl mx-auto">
           <motion.div 
-            className="text-center mb-12"
+            className="text-center mb-14"
             initial={{ opacity: 0, y: 20 }}
             animate={featuresInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-3xl font-bold mb-3">
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
               Everything You Need to <GradientText>Go Viral</GradientText>
             </h2>
-            <p className="text-white/50">
+            <p className="text-white/60 text-lg">
               AI-powered hooks based on 10,000+ viral TikToks
             </p>
           </motion.div>
@@ -344,10 +344,10 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonials */}
-      <section ref={testimonialsRef} className="py-20 px-4 border-y border-white/5">
+      <section ref={testimonialsRef} className="py-24 px-4 border-y border-white/5">
         <div className="max-w-6xl mx-auto">
           <motion.div 
-            className="text-center mb-16"
+            className="text-center mb-14"
             initial={{ opacity: 0, y: 20 }}
             animate={testimonialsInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5 }}
