@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Check, Sparkles, Zap, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { Logo } from "@/components/logo";
 
 const plans = [
   {
@@ -98,11 +99,8 @@ export default function PricingPage() {
       <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-lg border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center gap-2">
-              <Sparkles className="h-6 w-6 text-pink-500" />
-              <span className="text-xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 text-transparent bg-clip-text">
-                HookViral
-              </span>
+            <Link href="/">
+              <Logo size="md" />
             </Link>
             <div className="flex items-center gap-4">
               <Link href="/login">
@@ -111,7 +109,7 @@ export default function PricingPage() {
                 </Button>
               </Link>
               <Link href="/signup">
-                <Button className="bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-90">
+                <Button variant="gradient">
                   Get Started
                 </Button>
               </Link>
@@ -152,11 +150,14 @@ export default function PricingPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className={`h-full ${
-                  plan.popular 
-                    ? "bg-gradient-to-b from-pink-500/20 to-purple-500/20 border-pink-500/30" 
-                    : "bg-white/5 border-white/10"
-                } relative`}>
+                <Card 
+                  hover
+                  className={`h-full ${
+                    plan.popular 
+                      ? "bg-gradient-to-b from-pink-500/20 to-purple-500/20 border-pink-500/30 shadow-lg shadow-pink-500/10" 
+                      : "bg-white/5 border-white/10"
+                  } relative`}
+                >
                   {plan.popular && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                       <Badge className="bg-pink-500 text-white">Most Popular</Badge>
