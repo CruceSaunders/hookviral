@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { Sparkles, Zap, Copy, Check, ArrowRight, Play, Star, FileText, Scissors, Flame } from "lucide-react";
+import { Logo } from "@/components/logo";
 
 const exampleHooks = [
   "The TikTok hack that got me banned",
@@ -33,12 +34,7 @@ export default function LandingPage() {
       <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-lg border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-6 w-6 text-pink-500" />
-              <span className="text-xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 text-transparent bg-clip-text">
-                HookViral
-              </span>
-            </div>
+            <Logo size="md" />
             <div className="flex items-center gap-4">
               <Button variant="ghost" className="text-white/70 hover:text-white">
                 Pricing
@@ -354,10 +350,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="py-8 px-4 border-t border-white/10">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-pink-500" />
-            <span className="font-bold">HookViral</span>
-          </div>
+          <Logo size="sm" />
           <div className="flex gap-6 text-white/60 text-sm">
             <a href="#" className="hover:text-white">Terms</a>
             <a href="#" className="hover:text-white">Privacy</a>

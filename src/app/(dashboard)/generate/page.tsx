@@ -224,20 +224,7 @@ export default function GeneratePage() {
   return (
     <div className="min-h-screen bg-black text-white p-4 sm:p-8">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-6 w-6 text-pink-500" />
-            <span className="text-xl font-bold">HookViral</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <Badge variant="outline" className="border-pink-500/30 text-pink-400">
-              <Zap className="h-3 w-3 mr-1" />
-              5 hooks remaining today
-            </Badge>
-            <Button variant="outline" size="sm">Upgrade to Pro</Button>
-          </div>
-        </div>
+        {/* Header - Hidden since we have nav bar */}
 
         {/* Hook of the Day */}
         <HookOfTheDay />

@@ -4,14 +4,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { 
-  Sparkles, 
   Wand2, 
   Library, 
   Bookmark, 
   History,
   Settings,
-  Zap
+  Zap,
+  Sparkles
 } from "lucide-react";
+import { Logo } from "@/components/logo";
 import { Badge } from "@/components/ui/badge";
 
 const navItems = [
@@ -36,11 +37,8 @@ export default function DashboardLayout({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2">
-              <Sparkles className="h-6 w-6 text-pink-500" />
-              <span className="text-xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 text-transparent bg-clip-text">
-                HookViral
-              </span>
+            <Link href="/">
+              <Logo size="md" />
             </Link>
 
             {/* Center Navigation */}
