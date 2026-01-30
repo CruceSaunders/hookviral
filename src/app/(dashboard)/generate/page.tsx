@@ -19,7 +19,9 @@ import {
   Info,
   Flame,
   AlertTriangle,
-  FileText
+  FileText,
+  Scissors,
+  ArrowRight
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { HookOfTheDay } from "@/components/hook-of-the-day";
@@ -54,6 +56,8 @@ export default function GeneratePage() {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [savedHooks, setSavedHooks] = useState<Set<number>>(new Set());
   const [spicyLevel, setSpicyLevel] = useState([5]); // 1-10 controversy slider
+  const [shorteningIndex, setShorteningIndex] = useState<number | null>(null);
+  const [shortenedVersions, setShortenedVersions] = useState<Map<number, string>>(new Map());
 
   const getSpicyLabel = (level: number) => {
     if (level <= 2) return { label: "Safe", color: "text-green-400", emoji: "😇" };
@@ -155,6 +159,39 @@ export default function GeneratePage() {
       }
       return newSet;
     });
+  };
+
+  const shortenHook = async (index: number, hookText: string) => {
+    setShorteningIndex(index);
+    try {
+      const response = await fetch("/api/hooks/shorten", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hook: hookText, maxWords: 10 }),
+      });
+      const data = await response.json();
+      if (data.shortened) {
+        setShortenedVersions(prev => new Map(prev).set(index, data.shortened));
+      }
+    } catch (error) {
+      console.error("Failed to shorten hook:", error);
+    } finally {
+      setShorteningIndex(null);
+    }
+  };
+
+  const useShortened = (index: number) => {
+    const shortened = shortenedVersions.get(index);
+    if (shortened) {
+      setHooks(prev => prev.map((h, i) => 
+        i === index ? { ...h, text: shortened } : h
+      ));
+      setShortenedVersions(prev => {
+        const newMap = new Map(prev);
+        newMap.delete(index);
+        return newMap;
+      });
+    }
   };
 
   return (
@@ -330,6 +367,31 @@ export default function GeneratePage() {
                               <div className="flex items-start justify-between gap-4">
                                 <div className="flex-1">
                                   <p className="text-lg font-medium mb-2">"{hook.text}"</p>
+                                  
+                                  {/* Shortened version display */}
+                                  {shortenedVersions.has(index) && (
+                                    <motion.div
+                                      initial={{ opacity: 0, height: 0 }}
+                                      animate={{ opacity: 1, height: "auto" }}
+                                      className="mb-3 p-3 bg-orange-500/10 border border-orange-500/30 rounded-lg"
+                                    >
+                                      <div className="flex items-center gap-2 text-xs text-orange-400 mb-1">
+                                        <Scissors className="h-3 w-3" />
+                                        Shortened version:
+                                      </div>
+                                      <p className="text-white font-medium">"{shortenedVersions.get(index)}"</p>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        onClick={() => useShortened(index)}
+                                        className="mt-2 text-orange-400 hover:text-orange-300 hover:bg-orange-500/20 text-xs"
+                                      >
+                                        <ArrowRight className="h-3 w-3 mr-1" />
+                                        Use this version
+                                      </Button>
+                                    </motion.div>
+                                  )}
+                                  
                                   <div className="flex items-center gap-2 flex-wrap">
                                     <Badge variant="outline" className="text-xs border-white/20">
                                       {hook.style}
@@ -338,38 +400,59 @@ export default function GeneratePage() {
                                       {"★".repeat(Math.round(hook.rating / 2))}
                                       <span className="text-white/40 ml-1">{hook.rating}/10</span>
                                     </div>
+                                    <Badge variant="outline" className="text-xs border-white/10 text-white/40">
+                                      {hook.text.split(" ").length} words
+                                    </Badge>
                                   </div>
                                   <p className="text-sm text-white/50 mt-2 flex items-start gap-1">
                                     <Info className="h-4 w-4 shrink-0 mt-0.5" />
                                     {hook.explanation}
                                   </p>
                                 </div>
-                                <div className="flex gap-2">
-                                  <ScriptExpander
-                                    hookText={hook.text}
-                                    niche={selectedNiche}
-                                    topic={topic}
-                                  />
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => copyHook(index, hook.text)}
-                                    className="text-white/60 hover:text-white"
-                                  >
-                                    {copiedIndex === index ? (
-                                      <Check className="h-4 w-4 text-green-500" />
-                                    ) : (
-                                      <Copy className="h-4 w-4" />
-                                    )}
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => saveHook(index)}
-                                    className={savedHooks.has(index) ? "text-pink-500" : "text-white/60 hover:text-white"}
-                                  >
-                                    <Bookmark className={`h-4 w-4 ${savedHooks.has(index) ? "fill-current" : ""}`} />
-                                  </Button>
+                                <div className="flex flex-col gap-1">
+                                  <div className="flex gap-1">
+                                    <ScriptExpander
+                                      hookText={hook.text}
+                                      niche={selectedNiche}
+                                      topic={topic}
+                                    />
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={() => shortenHook(index, hook.text)}
+                                      disabled={shorteningIndex === index || hook.text.split(" ").length <= 10}
+                                      className="text-white/60 hover:text-white hover:bg-orange-500/20"
+                                      title="Make it shorter"
+                                    >
+                                      {shorteningIndex === index ? (
+                                        <RefreshCw className="h-4 w-4 animate-spin" />
+                                      ) : (
+                                        <Scissors className="h-4 w-4" />
+                                      )}
+                                    </Button>
+                                  </div>
+                                  <div className="flex gap-1">
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={() => copyHook(index, hook.text)}
+                                      className="text-white/60 hover:text-white"
+                                    >
+                                      {copiedIndex === index ? (
+                                        <Check className="h-4 w-4 text-green-500" />
+                                      ) : (
+                                        <Copy className="h-4 w-4" />
+                                      )}
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={() => saveHook(index)}
+                                      className={savedHooks.has(index) ? "text-pink-500" : "text-white/60 hover:text-white"}
+                                    >
+                                      <Bookmark className={`h-4 w-4 ${savedHooks.has(index) ? "fill-current" : ""}`} />
+                                    </Button>
+                                  </div>
                                 </div>
                               </div>
                             </CardContent>
