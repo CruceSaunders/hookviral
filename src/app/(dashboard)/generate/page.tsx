@@ -13,6 +13,7 @@ import {
   Bookmark, 
   RefreshCw, 
   ChevronDown,
+  ChevronUp,
   Zap,
   Info,
   Flame,
@@ -27,6 +28,8 @@ import { Slider } from "@/components/ui/slider";
 import { HookOfTheDay } from "@/components/hook-of-the-day";
 import { ScriptExpander } from "@/components/script-expander";
 import { NicheBadge } from "@/components/niche-badge";
+import { niches as allNiches, nicheCategories, NicheCategory, NicheInfo } from "@/lib/niches";
+import { NicheSelector } from "@/components/niche-selector";
 
 interface GeneratedHook {
   text: string;
@@ -36,21 +39,28 @@ interface GeneratedHook {
   wordCount?: number;
 }
 
-// Niche presets with optimized settings for each content type
-const nichePresets: Record<string, { style: string; spicy: number; emoji: string; tip: string }> = {
-  "Fitness": { style: "story", spicy: 5, emoji: "💪", tip: "Transformation stories and before/after hooks work best" },
-  "Business": { style: "curiosity", spicy: 6, emoji: "💰", tip: "Money numbers and contrarian business takes perform well" },
-  "Comedy": { style: "shock", spicy: 8, emoji: "😂", tip: "The more unexpected, the better - push the envelope" },
-  "Education": { style: "question", spicy: 3, emoji: "📚", tip: "Challenge assumptions gently, make them curious" },
-  "Lifestyle": { style: "story", spicy: 4, emoji: "✨", tip: "Relatable day-in-the-life hooks connect emotionally" },
-  "Beauty": { style: "controversy", spicy: 5, emoji: "💄", tip: "Hot takes on beauty trends get massive engagement" },
-  "Tech": { style: "curiosity", spicy: 5, emoji: "🚀", tip: "Future predictions and hidden features perform well" },
-  "Food": { style: "shock", spicy: 4, emoji: "🍕", tip: "Unusual combinations and secret ingredients hook viewers" },
-  "Travel": { style: "story", spicy: 3, emoji: "✈️", tip: "Hidden gems and travel mistakes create intrigue" },
-  "Gaming": { style: "controversy", spicy: 7, emoji: "🎮", tip: "Hot takes on games and unpopular opinions drive comments" },
+// Group niches by category for display
+const nichesByCategory: Record<NicheCategory, NicheInfo[]> = {
+  health: allNiches.filter(n => n.category === "health"),
+  money: allNiches.filter(n => n.category === "money"),
+  lifestyle: allNiches.filter(n => n.category === "lifestyle"),
+  entertainment: allNiches.filter(n => n.category === "entertainment"),
+  education: allNiches.filter(n => n.category === "education"),
+  creative: allNiches.filter(n => n.category === "creative"),
+  relationships: allNiches.filter(n => n.category === "relationships"),
+  tech: allNiches.filter(n => n.category === "tech"),
 };
 
-const niches = Object.keys(nichePresets);
+// Build presets from niches
+const nichePresets: Record<string, { style: string; spicy: number; emoji: string; tip: string }> = {};
+allNiches.forEach(n => {
+  nichePresets[n.name] = {
+    style: n.defaultStyle,
+    spicy: n.defaultSpice,
+    emoji: n.emoji,
+    tip: n.tip,
+  };
+});
 
 const styles = [
   { value: "curiosity", label: "Curiosity Gap", desc: "Make them need to know more" },
@@ -285,49 +295,13 @@ export default function GeneratePage() {
                 </div>
 
                 {/* Niche Selection */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="text-sm text-white/60">Niche</label>
-                    <label className="flex items-center gap-2 text-xs text-white/50 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={usePresets}
-                        onChange={(e) => setUsePresets(e.target.checked)}
-                        className="rounded border-white/20 bg-white/5"
-                      />
-                      Auto-optimize settings
-                    </label>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {niches.map((niche) => (
-                      <Badge
-                        key={niche}
-                        variant={selectedNiche === niche ? "default" : "outline"}
-                        className={`cursor-pointer ${
-                          selectedNiche === niche 
-                            ? "bg-pink-500 hover:bg-pink-600" 
-                            : "border-white/20 hover:border-white/40"
-                        }`}
-                        onClick={() => selectNiche(niche)}
-                      >
-                        {nichePresets[niche]?.emoji} {niche}
-                      </Badge>
-                    ))}
-                  </div>
-                  {/* Niche tip */}
-                  {usePresets && nichePresets[selectedNiche] && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="mt-2 p-2 bg-pink-500/10 border border-pink-500/20 rounded-lg"
-                    >
-                      <p className="text-xs text-pink-300 flex items-start gap-1">
-                        <Lightbulb className="h-3 w-3 shrink-0 mt-0.5" />
-                        {nichePresets[selectedNiche].tip}
-                      </p>
-                    </motion.div>
-                  )}
-                </div>
+                <NicheSelector 
+                  selectedNiche={selectedNiche}
+                  selectNiche={selectNiche}
+                  usePresets={usePresets}
+                  setUsePresets={setUsePresets}
+                  nichePresets={nichePresets}
+                />
 
                 {/* Style Selection */}
                 <div>
