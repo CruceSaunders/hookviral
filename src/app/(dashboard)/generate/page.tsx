@@ -21,7 +21,8 @@ import {
   AlertTriangle,
   FileText,
   Scissors,
-  ArrowRight
+  ArrowRight,
+  Lightbulb
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { HookOfTheDay } from "@/components/hook-of-the-day";
@@ -34,10 +35,21 @@ interface GeneratedHook {
   rating: number;
 }
 
-const niches = [
-  "Fitness", "Business", "Comedy", "Education", "Lifestyle", 
-  "Beauty", "Tech", "Food", "Travel", "Gaming"
-];
+// Niche presets with optimized settings for each content type
+const nichePresets: Record<string, { style: string; spicy: number; emoji: string; tip: string }> = {
+  "Fitness": { style: "story", spicy: 5, emoji: "💪", tip: "Transformation stories and before/after hooks work best" },
+  "Business": { style: "curiosity", spicy: 6, emoji: "💰", tip: "Money numbers and contrarian business takes perform well" },
+  "Comedy": { style: "shock", spicy: 8, emoji: "😂", tip: "The more unexpected, the better - push the envelope" },
+  "Education": { style: "question", spicy: 3, emoji: "📚", tip: "Challenge assumptions gently, make them curious" },
+  "Lifestyle": { style: "story", spicy: 4, emoji: "✨", tip: "Relatable day-in-the-life hooks connect emotionally" },
+  "Beauty": { style: "controversy", spicy: 5, emoji: "💄", tip: "Hot takes on beauty trends get massive engagement" },
+  "Tech": { style: "curiosity", spicy: 5, emoji: "🚀", tip: "Future predictions and hidden features perform well" },
+  "Food": { style: "shock", spicy: 4, emoji: "🍕", tip: "Unusual combinations and secret ingredients hook viewers" },
+  "Travel": { style: "story", spicy: 3, emoji: "✈️", tip: "Hidden gems and travel mistakes create intrigue" },
+  "Gaming": { style: "controversy", spicy: 7, emoji: "🎮", tip: "Hot takes on games and unpopular opinions drive comments" },
+};
+
+const niches = Object.keys(nichePresets);
 
 const styles = [
   { value: "curiosity", label: "Curiosity Gap", desc: "Make them need to know more" },
@@ -50,7 +62,7 @@ const styles = [
 export default function GeneratePage() {
   const [topic, setTopic] = useState("");
   const [selectedNiche, setSelectedNiche] = useState("Fitness");
-  const [selectedStyle, setSelectedStyle] = useState("curiosity");
+  const [selectedStyle, setSelectedStyle] = useState("story"); // Matches Fitness preset
   const [hooks, setHooks] = useState<GeneratedHook[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
@@ -58,6 +70,16 @@ export default function GeneratePage() {
   const [spicyLevel, setSpicyLevel] = useState([5]); // 1-10 controversy slider
   const [shorteningIndex, setShorteningIndex] = useState<number | null>(null);
   const [shortenedVersions, setShortenedVersions] = useState<Map<number, string>>(new Map());
+  const [usePresets, setUsePresets] = useState(true);
+
+  // Apply preset when niche changes
+  const selectNiche = (niche: string) => {
+    setSelectedNiche(niche);
+    if (usePresets && nichePresets[niche]) {
+      setSelectedStyle(nichePresets[niche].style);
+      setSpicyLevel([nichePresets[niche].spicy]);
+    }
+  };
 
   const getSpicyLabel = (level: number) => {
     if (level <= 2) return { label: "Safe", color: "text-green-400", emoji: "😇" };
@@ -238,7 +260,18 @@ export default function GeneratePage() {
 
                 {/* Niche Selection */}
                 <div>
-                  <label className="text-sm text-white/60 mb-2 block">Niche</label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-sm text-white/60">Niche</label>
+                    <label className="flex items-center gap-2 text-xs text-white/50 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={usePresets}
+                        onChange={(e) => setUsePresets(e.target.checked)}
+                        className="rounded border-white/20 bg-white/5"
+                      />
+                      Auto-optimize settings
+                    </label>
+                  </div>
                   <div className="flex flex-wrap gap-2">
                     {niches.map((niche) => (
                       <Badge
@@ -249,12 +282,25 @@ export default function GeneratePage() {
                             ? "bg-pink-500 hover:bg-pink-600" 
                             : "border-white/20 hover:border-white/40"
                         }`}
-                        onClick={() => setSelectedNiche(niche)}
+                        onClick={() => selectNiche(niche)}
                       >
-                        {niche}
+                        {nichePresets[niche]?.emoji} {niche}
                       </Badge>
                     ))}
                   </div>
+                  {/* Niche tip */}
+                  {usePresets && nichePresets[selectedNiche] && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-2 p-2 bg-pink-500/10 border border-pink-500/20 rounded-lg"
+                    >
+                      <p className="text-xs text-pink-300 flex items-start gap-1">
+                        <Lightbulb className="h-3 w-3 shrink-0 mt-0.5" />
+                        {nichePresets[selectedNiche].tip}
+                      </p>
+                    </motion.div>
+                  )}
                 </div>
 
                 {/* Style Selection */}
