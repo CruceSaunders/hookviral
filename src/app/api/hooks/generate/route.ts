@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+function getOpenAI() {
+  if (!process.env.OPENAI_API_KEY) return null;
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+}
 
 interface GenerateRequest {
   topic: string;
@@ -69,6 +70,14 @@ Return as JSON array with this exact structure:
 ]
 
 Generate exactly 10 hooks. Be creative, specific, and viral.`;
+
+    const openai = getOpenAI();
+    if (!openai) {
+      return NextResponse.json({
+        hooks: getMockHooks(request),
+        note: "Using mock data - set OPENAI_API_KEY for real generation",
+      });
+    }
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",

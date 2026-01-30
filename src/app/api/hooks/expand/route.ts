@@ -1,9 +1,15 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Lazy initialization - only create client when needed
+function getOpenAI() {
+  if (!process.env.OPENAI_API_KEY) {
+    return null;
+  }
+  return new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+}
 
 interface ExpandRequest {
   hook: string;
@@ -105,6 +111,14 @@ Return as JSON with this exact structure:
 }
 
 Make it VIRAL. Make it feel natural when spoken aloud. No corporate speak.`;
+
+    const openai = getOpenAI();
+    if (!openai) {
+      return NextResponse.json({
+        script: getMockScript(),
+        note: "Using mock data - set OPENAI_API_KEY for real generation",
+      });
+    }
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",

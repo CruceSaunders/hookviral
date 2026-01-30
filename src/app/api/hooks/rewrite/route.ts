@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+function getOpenAI() {
+  if (!process.env.OPENAI_API_KEY) return null;
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+}
 
 interface RewriteRequest {
   originalHook: string;
@@ -61,6 +62,14 @@ Return as JSON:
     }
   ]
 }`;
+
+    const openai = getOpenAI();
+    if (!openai) {
+      return NextResponse.json({
+        variations: getMockRewrites(originalHook),
+        note: "Using mock data - set OPENAI_API_KEY for real generation",
+      });
+    }
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",

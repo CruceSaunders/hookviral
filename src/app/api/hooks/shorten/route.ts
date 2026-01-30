@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+function getOpenAI() {
+  if (!process.env.OPENAI_API_KEY) return null;
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+}
 
 interface ShortenRequest {
   hook: string;
@@ -40,6 +41,16 @@ Return as JSON:
   "wordCount": 8,
   "technique": "What you removed/changed"
 }`;
+
+    const openai = getOpenAI();
+    if (!openai) {
+      return NextResponse.json({
+        shortened: hook.split(' ').slice(0, maxWords).join(' ') + '...',
+        wordCount: maxWords,
+        technique: "Truncated to max words (mock mode)",
+        note: "Mock data - set OPENAI_API_KEY for real compression",
+      });
+    }
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
