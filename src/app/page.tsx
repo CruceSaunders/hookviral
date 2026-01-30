@@ -306,37 +306,37 @@ export default function LandingPage() {
       {/* Trusted By - Infinite Marquee */}
       <TrustedMarquee />
 
-      {/* Features - Compact */}
-      <section ref={featuresRef} className="py-14 px-4">
+      {/* Features */}
+      <section ref={featuresRef} className="py-20 px-4">
         <div className="max-w-5xl mx-auto">
           <motion.div 
-            className="text-center mb-10"
+            className="text-center mb-12"
             initial={{ opacity: 0, y: 20 }}
             animate={featuresInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-2xl sm:text-3xl font-bold mb-2">
+            <h2 className="text-3xl font-bold mb-3">
               Everything You Need to <GradientText>Go Viral</GradientText>
             </h2>
-            <p className="text-white/50 text-base">
+            <p className="text-white/50">
               AI-powered hooks based on 10,000+ viral TikToks
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
             {features.map((feature, i) => (
               <motion.div
                 key={feature.title}
                 initial={{ opacity: 0, y: 20 }}
                 animate={featuresInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.4, delay: 0.05 * i }}
-                className="p-4 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/10 hover:bg-white/[0.05] transition-all"
+                className="p-5 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/10 hover:bg-white/[0.05] transition-all"
               >
-                <div className="w-9 h-9 rounded-lg bg-gradient-to-r from-pink-500/20 to-purple-500/20 flex items-center justify-center mb-3">
-                  <feature.icon className="h-4 w-4 text-pink-400" />
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-pink-500/20 to-purple-500/20 flex items-center justify-center mb-4">
+                  <feature.icon className="h-5 w-5 text-pink-400" />
                 </div>
-                <h3 className="font-medium text-sm mb-1">{feature.title}</h3>
-                <p className="text-white/40 text-xs leading-relaxed">{feature.description}</p>
+                <h3 className="font-semibold mb-1.5">{feature.title}</h3>
+                <p className="text-white/50 text-sm leading-relaxed">{feature.description}</p>
               </motion.div>
             ))}
           </div>
@@ -344,7 +344,7 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonials */}
-      <section ref={testimonialsRef} className="py-24 px-4 border-y border-white/5">
+      <section ref={testimonialsRef} className="py-20 px-4 border-y border-white/5">
         <div className="max-w-6xl mx-auto">
           <motion.div 
             className="text-center mb-16"
