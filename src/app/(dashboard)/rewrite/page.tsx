@@ -15,6 +15,7 @@ import {
   Sparkles,
   Lightbulb
 } from "lucide-react";
+import { Logo } from "@/components/logo";
 
 interface RewrittenHook {
   text: string;
@@ -104,7 +105,7 @@ export default function RewritePage() {
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Input Side */}
           <div className="space-y-6">
-            <Card className="bg-white/5 border-white/10">
+            <Card glass className="border-white/10">
               <CardHeader>
                 <CardTitle className="text-lg">Your Hook</CardTitle>
               </CardHeader>
@@ -142,7 +143,8 @@ export default function RewritePage() {
                 <Button
                   onClick={rewriteHook}
                   disabled={!originalHook.trim() || isLoading}
-                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90"
+                  variant="gradient"
+                  className="w-full"
                 >
                   {isLoading ? (
                     <>
