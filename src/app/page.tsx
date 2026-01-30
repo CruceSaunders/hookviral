@@ -306,40 +306,37 @@ export default function LandingPage() {
       {/* Trusted By - Infinite Marquee */}
       <TrustedMarquee />
 
-      {/* Features */}
-      <section ref={featuresRef} className="py-24 px-4">
-        <div className="max-w-6xl mx-auto">
+      {/* Features - Compact */}
+      <section ref={featuresRef} className="py-14 px-4">
+        <div className="max-w-5xl mx-auto">
           <motion.div 
-            className="text-center mb-16"
+            className="text-center mb-10"
             initial={{ opacity: 0, y: 20 }}
             animate={featuresInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-2">
               Everything You Need to <GradientText>Go Viral</GradientText>
             </h2>
-            <p className="text-white/60 text-lg max-w-2xl mx-auto">
-              Stop guessing what hooks work. Our AI has analyzed thousands of viral TikToks so you don't have to.
+            <p className="text-white/50 text-base">
+              AI-powered hooks based on 10,000+ viral TikToks
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {features.map((feature, i) => (
               <motion.div
                 key={feature.title}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={featuresInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.1 * i }}
+                transition={{ duration: 0.4, delay: 0.05 * i }}
+                className="p-4 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/10 hover:bg-white/[0.05] transition-all"
               >
-                <Card className="bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/[0.07] transition-all duration-300 h-full">
-                  <CardContent className="p-6">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-pink-500/20 to-purple-500/20 flex items-center justify-center mb-4">
-                      <feature.icon className="h-6 w-6 text-pink-400" />
-                    </div>
-                    <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                    <p className="text-white/60">{feature.description}</p>
-                  </CardContent>
-                </Card>
+                <div className="w-9 h-9 rounded-lg bg-gradient-to-r from-pink-500/20 to-purple-500/20 flex items-center justify-center mb-3">
+                  <feature.icon className="h-4 w-4 text-pink-400" />
+                </div>
+                <h3 className="font-medium text-sm mb-1">{feature.title}</h3>
+                <p className="text-white/40 text-xs leading-relaxed">{feature.description}</p>
               </motion.div>
             ))}
           </div>
