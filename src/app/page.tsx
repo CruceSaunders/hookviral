@@ -163,11 +163,13 @@ export default function LandingPage() {
               <Logo size="md" />
             </Link>
             <div className="flex items-center gap-4">
-              <Link href="/pricing">
-                <Button variant="ghost" className="text-white/70 hover:text-white">
-                  Pricing
-                </Button>
-              </Link>
+              <Button 
+                variant="ghost" 
+                className="text-white/70 hover:text-white"
+                onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                Pricing
+              </Button>
               <Link href="/login">
                 <Button variant="ghost" className="text-white/70 hover:text-white">
                   Login
@@ -446,7 +448,7 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-20 px-4 border-t border-white/10">
+      <section id="pricing" className="py-20 px-4 border-t border-white/10 scroll-mt-20">
         <div className="max-w-5xl mx-auto">
           <motion.div 
             className="text-center mb-16"
