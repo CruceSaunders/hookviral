@@ -21,24 +21,24 @@ import { TrustedMarquee } from "@/components/trusted-marquee";
 // Features with icons
 const features = [
   {
+    icon: TrendingUp,
+    title: "Real TikTok Research",
+    description: "AI finds viral TikToks with 500K+ views and extracts the exact hooks that worked."
+  },
+  {
     icon: Zap,
     title: "Generate in Seconds",
-    description: "Get 10 scroll-stopping hooks instantly. No more staring at blank screens."
+    description: "Get 10 scroll-stopping hooks instantly based on what's actually going viral."
   },
   {
     icon: Target,
-    title: "Niche-Optimized",
-    description: "Hooks tailored for fitness, business, comedy, beauty, and 10+ more niches."
-  },
-  {
-    icon: TrendingUp,
-    title: "Proven Formulas",
-    description: "Based on analysis of 10,000+ viral TikToks. What works, distilled."
+    title: "50+ Niches",
+    description: "Fitness, business, comedy, beauty, tech, and more—optimized for each."
   },
   {
     icon: Lightbulb,
-    title: "Style Control",
-    description: "Curiosity, controversy, story, shock—pick your angle and spice level."
+    title: "Browse Viral Hooks",
+    description: "See real hooks from real viral videos. Links, view counts, and analysis included."
   },
 ];
 
@@ -255,7 +255,7 @@ export default function LandingPage() {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="text-lg sm:text-xl text-white/60 mb-8 max-w-xl mx-auto lg:mx-0"
               >
-                AI-powered hooks that make people stop scrolling. Generate 10 viral TikTok openers in 30 seconds.
+                AI researches viral TikToks and extracts the hooks that are working <strong className="text-white">right now</strong>. See what's getting millions of views.
               </motion.p>
 
               <motion.div
@@ -319,7 +319,7 @@ export default function LandingPage() {
               Everything You Need to <GradientText>Go Viral</GradientText>
             </h2>
             <p className="text-white/60 text-lg">
-              AI-powered hooks based on 10,000+ viral TikToks
+              Real hooks from real viral TikToks—with view counts and links
             </p>
           </motion.div>
 
