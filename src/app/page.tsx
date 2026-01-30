@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { Sparkles, Zap, Copy, Check, ArrowRight, Play, Star } from "lucide-react";
+import { Sparkles, Zap, Copy, Check, ArrowRight, Play, Star, FileText, Scissors, Flame } from "lucide-react";
 
 const exampleHooks = [
   "The TikTok hack that got me banned",
@@ -216,14 +216,29 @@ export default function LandingPage() {
                 desc: "Input your video topic, get 10 scroll-stopping hooks in seconds. Each one explained so you know WHY it works.",
               },
               {
+                icon: <FileText className="h-8 w-8 text-purple-500" />,
+                title: "Hook → Full Script",
+                desc: "One click turns any hook into a complete 30-60 second TikTok script with structure, timing, and CTA.",
+              },
+              {
+                icon: <Flame className="h-8 w-8 text-orange-500" />,
+                title: "Controversy Slider",
+                desc: "Dial up the spice. Adjust hook intensity from safe-for-work to 'might get cancelled' with one slider.",
+              },
+              {
                 icon: <Zap className="h-8 w-8 text-yellow-500" />,
                 title: "10,000+ Hook Library",
                 desc: "Browse proven viral hooks by niche. Fitness, business, comedy, education—find what works and make it yours.",
               },
               {
-                icon: <Star className="h-8 w-8 text-cyan-500" />,
-                title: "Hook Rewriter",
-                desc: "Paste your hook, get 5 better versions. Turn 'meh' into 'MUST WATCH' with one click.",
+                icon: <Scissors className="h-8 w-8 text-cyan-500" />,
+                title: "Make It Shorter",
+                desc: "One click compresses any hook to 10 words or less while keeping the emotional punch.",
+              },
+              {
+                icon: <Star className="h-8 w-8 text-green-500" />,
+                title: "Niche Presets",
+                desc: "Auto-optimized settings for every content type. Fitness, comedy, business—get perfect hooks instantly.",
               },
             ].map((feature, i) => (
               <motion.div
