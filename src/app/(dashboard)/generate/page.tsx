@@ -393,9 +393,28 @@ export default function GeneratePage() {
                 <CardTitle className="text-lg flex items-center justify-between">
                   <span>Generated Hooks</span>
                   {hooks.length > 0 && (
-                    <span className="text-sm font-normal text-white/50">
-                      {hooks.length} hooks
-                    </span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-normal text-white/50">
+                        {hooks.length} hooks
+                      </span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const allHooks = hooks.map((h, i) => `${i + 1}. "${h.text}"`).join('\n\n');
+                          navigator.clipboard.writeText(allHooks);
+                          setCopiedIndex(-1); // Use -1 to indicate "all copied"
+                          setTimeout(() => setCopiedIndex(null), 2000);
+                        }}
+                        className="border-white/20 text-xs"
+                      >
+                        {copiedIndex === -1 ? (
+                          <><Check className="h-3 w-3 mr-1 text-green-400" /> Copied!</>
+                        ) : (
+                          <><Copy className="h-3 w-3 mr-1" /> Copy All</>
+                        )}
+                      </Button>
+                    </div>
                   )}
                 </CardTitle>
               </CardHeader>
