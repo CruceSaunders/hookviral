@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { NicheBadge } from "@/components/niche-badge";
 import { motion } from "framer-motion";
 import { 
   Search,
@@ -176,13 +177,7 @@ export default function LibraryPage() {
     <div className="min-h-screen bg-black text-white p-4 sm:p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-6 w-6 text-pink-500" />
-            <span className="text-xl font-bold">HookViral</span>
-          </div>
-          <Button variant="outline" size="sm">Upgrade to Pro</Button>
-        </div>
+        {/* Header hidden - using nav bar */}
 
         {/* Page Title */}
         <div className="mb-8">
@@ -277,10 +272,8 @@ export default function LibraryPage() {
                   </p>
                   
                   <div className="flex items-center gap-2 mb-3">
-                    <Badge variant="outline" className="text-xs border-pink-500/30 text-pink-400">
-                      {hook.niche}
-                    </Badge>
-                    <Badge variant="outline" className="text-xs border-purple-500/30 text-purple-400">
+                    <NicheBadge niche={hook.niche} size="sm" />
+                    <Badge variant="outline" className="text-xs border-white/20 text-white/60">
                       {hook.style}
                     </Badge>
                   </div>

@@ -51,7 +51,14 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4">
+      <section className="pt-32 pb-20 px-4 relative overflow-hidden">
+        {/* Animated gradient background */}
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-pink-500/20 rounded-full blur-[128px] animate-float" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-[128px] animate-float" style={{ animationDelay: "1s" }} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[128px] animate-glow-pulse" />
+        </div>
+        
         <div className="max-w-5xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -140,11 +147,19 @@ export default function LandingPage() {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
-            <Button size="lg" className="bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-90 text-lg px-8">
+            <Button 
+              size="lg" 
+              variant="gradient"
+              className="text-lg px-8 shadow-lg shadow-pink-500/25"
+            >
               Get Started Free
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-            <Button size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10 text-lg px-8">
+            <Button 
+              size="lg" 
+              variant="glass"
+              className="text-lg px-8"
+            >
               <Play className="mr-2 h-5 w-5" />
               See Demo
             </Button>
