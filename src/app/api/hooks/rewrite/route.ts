@@ -7,7 +7,8 @@ function getOpenAI() {
 }
 
 interface RewriteRequest {
-  originalHook: string;
+  hook?: string;
+  originalHook?: string;
   improvements?: string[];
 }
 
@@ -17,9 +18,13 @@ interface RewrittenHook {
 }
 
 export async function POST(request: Request) {
+  let originalHook = "";
+  let improvements: string[] = [];
+
   try {
     const body: RewriteRequest = await request.json();
-    const { originalHook, improvements = [] } = body;
+    originalHook = body.hook || body.originalHook || "";
+    improvements = body.improvements || [];
 
     if (!originalHook) {
       return NextResponse.json(
@@ -66,7 +71,7 @@ Return as JSON:
     const openai = getOpenAI();
     if (!openai) {
       return NextResponse.json({
-        variations: getMockRewrites(originalHook),
+        rewrites: getMockRewrites(originalHook),
         note: "Using mock data - set OPENAI_API_KEY for real generation",
       });
     }
@@ -112,9 +117,8 @@ Return as JSON:
     
     // Return mock data if API fails
     if (process.env.NODE_ENV === "development" || !process.env.OPENAI_API_KEY) {
-      const { originalHook } = await request.json().catch(() => ({ originalHook: "your hook" }));
       return NextResponse.json({
-        rewrites: getMockRewrites(originalHook),
+        rewrites: getMockRewrites(originalHook || "your hook"),
         count: 5,
         note: "Using mock data - set OPENAI_API_KEY for real generation",
       });

@@ -1,12 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { NicheBadge } from "@/components/niche-badge";
-import { motion } from "framer-motion";
+import { Slider } from "@/components/ui/slider";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import { 
   Search,
   Copy, 
@@ -14,323 +22,598 @@ import {
   Bookmark, 
   Sparkles,
   Filter,
-  TrendingUp
+  TrendingUp,
+  Loader2,
+  FileText,
+  RefreshCw,
+  Play,
+  Eye,
+  Heart,
+  MessageCircle,
+  Share2,
+  ExternalLink,
+  Zap,
+  Clock,
+  ChevronRight,
+  ArrowRight,
+  Flame,
 } from "lucide-react";
 
-// Sample hook library data - in production this comes from Supabase
-const hookLibrary = [
-  // FITNESS (15 hooks)
-  { id: "1", text: "The exercise scientists say you should NEVER do", niche: "fitness", style: "curiosity", saves: 1245 },
-  { id: "2", text: "I lost 30 pounds and didn't change my diet once", niche: "fitness", style: "story", saves: 892 },
-  { id: "3", text: "The gym hack that doubled my gains in 4 weeks", niche: "fitness", style: "transformation", saves: 2341 },
-  { id: "4", text: "Stop doing this exercise immediately if you value your joints", niche: "fitness", style: "controversy", saves: 1876 },
-  { id: "5", text: "I trained like a Navy SEAL for 30 days. Here's what happened.", niche: "fitness", style: "story", saves: 3421 },
-  { id: "6", text: "Why your protein shake is making you fat", niche: "fitness", style: "controversy", saves: 2109 },
-  { id: "7", text: "The 5-minute workout that burns more than 1 hour of cardio", niche: "fitness", style: "curiosity", saves: 4567 },
-  { id: "8", text: "Personal trainers HATE when I share this", niche: "fitness", style: "controversy", saves: 2890 },
-  { id: "9", text: "I went from 0 to 100 pushups in 30 days. Here's the method.", niche: "fitness", style: "transformation", saves: 1543 },
-  { id: "10", text: "The muscle you're ignoring that's killing your posture", niche: "fitness", style: "tips", saves: 1234 },
-  { id: "11", text: "What happens if you walk 10K steps every day for a year", niche: "fitness", style: "story", saves: 3456 },
-  { id: "12", text: "The supplement industry doesn't want you to know this", niche: "fitness", style: "controversy", saves: 2789 },
-  { id: "13", text: "I fixed my back pain with one exercise. Takes 2 minutes.", niche: "fitness", style: "tips", saves: 5678 },
-  { id: "14", text: "Why skinny guys can't build muscle (and how I fixed it)", niche: "fitness", style: "story", saves: 1987 },
-  { id: "15", text: "The workout split that transformed my physique", niche: "fitness", style: "transformation", saves: 2345 },
-  
-  // BUSINESS (15 hooks)
-  { id: "16", text: "I made $100K in 30 days and no one believes how", niche: "business", style: "curiosity", saves: 2341 },
-  { id: "17", text: "The business idea that took me from broke to rich", niche: "business", style: "story", saves: 1567 },
-  { id: "18", text: "How I make $10K/month working 4 hours a week", niche: "business", style: "story", saves: 4567 },
-  { id: "19", text: "The side hustle that pays more than my 9-5", niche: "business", style: "story", saves: 3456 },
-  { id: "20", text: "Why most small businesses fail (and how to avoid it)", niche: "business", style: "tips", saves: 2345 },
-  { id: "21", text: "The email that landed me a $50K client", niche: "business", style: "story", saves: 1876 },
-  { id: "22", text: "Rich people do THIS differently and it changed everything", niche: "business", style: "curiosity", saves: 5678 },
-  { id: "23", text: "I quit my job and 6 months later this happened", niche: "business", style: "story", saves: 4321 },
-  { id: "24", text: "The negotiation trick that doubled my salary", niche: "business", style: "tips", saves: 2987 },
-  { id: "25", text: "Why working harder won't make you rich", niche: "business", style: "controversy", saves: 3654 },
-  { id: "26", text: "The skill that's worth more than a college degree", niche: "business", style: "controversy", saves: 2876 },
-  { id: "27", text: "I failed 7 businesses before this one made me a millionaire", niche: "business", style: "story", saves: 4567 },
-  { id: "28", text: "The one investment that changed my financial life", niche: "business", style: "story", saves: 3210 },
-  { id: "29", text: "How I automated my income (step by step)", niche: "business", style: "tips", saves: 5432 },
-  { id: "30", text: "The LinkedIn strategy that got me 50 job offers", niche: "business", style: "tips", saves: 2198 },
+// Types for research results
+interface ResearchedVideo {
+  id: string;
+  thumbnail: string;
+  views: number;
+  likes: number;
+  comments: number;
+  shares: number;
+  creator: string;
+  creatorHandle: string;
+  hookText: string;
+  hookType: string;
+  aiSummary: string;
+  transcript?: string;
+  videoUrl: string;
+  duration: number;
+  niche: string;
+  postedAt: string;
+}
 
-  // COMEDY (12 hooks)
-  { id: "31", text: "POV: You're the only one who didn't get the memo", niche: "comedy", style: "relatable", saves: 3421 },
-  { id: "32", text: "Tell me you're broke without telling me you're broke", niche: "comedy", style: "relatable", saves: 2890 },
-  { id: "33", text: "When your mom says 'we have food at home'", niche: "comedy", style: "relatable", saves: 4567 },
-  { id: "34", text: "Me explaining why I need another plant", niche: "comedy", style: "relatable", saves: 3456 },
-  { id: "35", text: "That one friend who's always 'on my way'", niche: "comedy", style: "relatable", saves: 5678 },
-  { id: "36", text: "POV: You said 'I'll just have water' at a restaurant", niche: "comedy", style: "relatable", saves: 2345 },
-  { id: "37", text: "Nobody: ... Me at 3am:", niche: "comedy", style: "relatable", saves: 4321 },
-  { id: "38", text: "Things that live rent free in my head:", niche: "comedy", style: "relatable", saves: 3987 },
-  { id: "39", text: "My last brain cell trying to adult:", niche: "comedy", style: "relatable", saves: 4567 },
-  { id: "40", text: "When you lie on your resume and get the job", niche: "comedy", style: "relatable", saves: 5432 },
-  { id: "41", text: "Me pretending to be surprised at my own birthday party", niche: "comedy", style: "relatable", saves: 2876 },
-  { id: "42", text: "Dating in 2026 be like:", niche: "comedy", style: "relatable", saves: 6543 },
+interface HookAnalysis {
+  hookType: string;
+  whyItWorks: string;
+  similarTemplates: string[];
+}
 
-  // EDUCATION (12 hooks)
-  { id: "43", text: "The fact that changed how I see the world", niche: "education", style: "curiosity", saves: 1234 },
-  { id: "44", text: "Your teachers lied to you about this", niche: "education", style: "controversy", saves: 1876 },
-  { id: "45", text: "What they don't teach you in school about money", niche: "education", style: "controversy", saves: 3456 },
-  { id: "46", text: "The psychological trick that changes everything", niche: "education", style: "curiosity", saves: 2345 },
-  { id: "47", text: "I read 100 books this year. Here's what I learned.", niche: "education", style: "story", saves: 4567 },
-  { id: "48", text: "The study method that got me into Harvard", niche: "education", style: "tips", saves: 5678 },
-  { id: "49", text: "Why everything you know about history is wrong", niche: "education", style: "controversy", saves: 2987 },
-  { id: "50", text: "The science behind why you're always tired", niche: "education", style: "curiosity", saves: 3654 },
-  { id: "51", text: "One fact that will make you question reality", niche: "education", style: "curiosity", saves: 4321 },
-  { id: "52", text: "The skill that takes 20 hours to learn but lasts forever", niche: "education", style: "tips", saves: 2876 },
-  { id: "53", text: "How to learn any language in 6 months (scientifically)", niche: "education", style: "tips", saves: 5432 },
-  { id: "54", text: "The memory technique that changed how I study", niche: "education", style: "transformation", saves: 3210 },
-
-  // LIFESTYLE (12 hooks)
-  { id: "55", text: "I completely changed my life in 6 months. Here's how.", niche: "lifestyle", style: "transformation", saves: 2109 },
-  { id: "56", text: "The morning routine that fixed my anxiety", niche: "lifestyle", style: "story", saves: 1543 },
-  { id: "57", text: "5AM vs 9AM: I tested both for 30 days", niche: "lifestyle", style: "story", saves: 4567 },
-  { id: "58", text: "The habit that ruined my life (stop doing this)", niche: "lifestyle", style: "controversy", saves: 3456 },
-  { id: "59", text: "How I went from depressed to thriving", niche: "lifestyle", style: "transformation", saves: 5678 },
-  { id: "60", text: "The one thing I removed that changed everything", niche: "lifestyle", style: "curiosity", saves: 2345 },
-  { id: "61", text: "Why I wake up at 4AM (and why you should too)", niche: "lifestyle", style: "controversy", saves: 4321 },
-  { id: "62", text: "The journal practice that made me rich", niche: "lifestyle", style: "story", saves: 3987 },
-  { id: "63", text: "I deleted social media for a year. Here's what happened.", niche: "lifestyle", style: "story", saves: 6543 },
-  { id: "64", text: "The minimalist trick that saved me $10K", niche: "lifestyle", style: "tips", saves: 2876 },
-  { id: "65", text: "How to actually stick to your New Year's resolution", niche: "lifestyle", style: "tips", saves: 4567 },
-  { id: "66", text: "The evening routine that helped me sleep like a baby", niche: "lifestyle", style: "tips", saves: 3210 },
-
-  // BEAUTY (12 hooks)
-  { id: "67", text: "The skincare product that cleared my skin in 2 weeks", niche: "beauty", style: "transformation", saves: 1876 },
-  { id: "68", text: "Skincare ingredients you should NEVER mix", niche: "beauty", style: "tips", saves: 2234 },
-  { id: "69", text: "I tried the viral skincare routine for 30 days", niche: "beauty", style: "story", saves: 4567 },
-  { id: "70", text: "Dermatologists don't want you to know this", niche: "beauty", style: "controversy", saves: 5678 },
-  { id: "71", text: "The $5 product that replaced my entire routine", niche: "beauty", style: "tips", saves: 3456 },
-  { id: "72", text: "Why your skin is breaking out (it's not what you think)", niche: "beauty", style: "curiosity", saves: 2987 },
-  { id: "73", text: "The makeup hack that changed my entire look", niche: "beauty", style: "transformation", saves: 4321 },
-  { id: "74", text: "I spent $1000 on skincare. Here's what actually works.", niche: "beauty", style: "story", saves: 5432 },
-  { id: "75", text: "The ingredient that's in 90% of products but shouldn't be", niche: "beauty", style: "controversy", saves: 3654 },
-  { id: "76", text: "How I got rid of acne scars in 3 months", niche: "beauty", style: "transformation", saves: 6543 },
-  { id: "77", text: "The sunscreen mistake that's aging your skin", niche: "beauty", style: "tips", saves: 2876 },
-  { id: "78", text: "Celebrity makeup secrets they don't want you to know", niche: "beauty", style: "curiosity", saves: 4567 },
-
-  // TECH (12 hooks)
-  { id: "79", text: "iPhone settings you need to change right now", niche: "tech", style: "tips", saves: 3456 },
-  { id: "80", text: "The app that's free but should cost $100", niche: "tech", style: "tips", saves: 2789 },
-  { id: "81", text: "Why I switched from iPhone to Android (and back)", niche: "tech", style: "story", saves: 4567 },
-  { id: "82", text: "The AI tool that does my work for me", niche: "tech", style: "tips", saves: 6789 },
-  { id: "83", text: "Hidden iPhone features Apple doesn't advertise", niche: "tech", style: "curiosity", saves: 5678 },
-  { id: "84", text: "The browser extension that changed how I work", niche: "tech", style: "tips", saves: 3456 },
-  { id: "85", text: "I tested every AI tool. Here's the only one worth using.", niche: "tech", style: "story", saves: 7890 },
-  { id: "86", text: "Why your phone is listening to you (and how to stop it)", niche: "tech", style: "controversy", saves: 5432 },
-  { id: "87", text: "The keyboard shortcut that saves me 2 hours a day", niche: "tech", style: "tips", saves: 4321 },
-  { id: "88", text: "Tech billionaires use this app and no one knows about it", niche: "tech", style: "curiosity", saves: 3987 },
-  { id: "89", text: "The password manager mistake that got me hacked", niche: "tech", style: "story", saves: 2876 },
-  { id: "90", text: "I automated my entire life with this one tool", niche: "tech", style: "transformation", saves: 5678 },
-
-  // FOOD (12 hooks)
-  { id: "91", text: "The meal that changed how I cook forever", niche: "food", style: "story", saves: 1234 },
-  { id: "92", text: "I made restaurant-quality food for $5", niche: "food", style: "story", saves: 1567 },
-  { id: "93", text: "The cooking hack every home chef needs to know", niche: "food", style: "tips", saves: 3456 },
-  { id: "94", text: "Why your steak never tastes like a restaurant's", niche: "food", style: "curiosity", saves: 4567 },
-  { id: "95", text: "The ingredient that makes everything taste better", niche: "food", style: "tips", saves: 5678 },
-  { id: "96", text: "I ate only protein for 30 days. Here's what happened.", niche: "food", style: "story", saves: 3987 },
-  { id: "97", text: "The meal prep that saved me 10 hours a week", niche: "food", style: "tips", saves: 2876 },
-  { id: "98", text: "Chefs never do this (but you probably do)", niche: "food", style: "controversy", saves: 4321 },
-  { id: "99", text: "The recipe that went viral for a reason", niche: "food", style: "story", saves: 6543 },
-  { id: "100", text: "I made the internet's most famous recipe. Was it worth it?", niche: "food", style: "story", saves: 5432 },
-  { id: "101", text: "The sauce that makes anything taste amazing", niche: "food", style: "tips", saves: 3654 },
-  { id: "102", text: "Why air fryers are overhyped (controversial opinion)", niche: "food", style: "controversy", saves: 4567 },
+// Niches for research
+const niches = [
+  { id: "fitness", label: "Fitness", emoji: "💪" },
+  { id: "business", label: "Business", emoji: "💰" },
+  { id: "comedy", label: "Comedy", emoji: "😂" },
+  { id: "education", label: "Education", emoji: "📚" },
+  { id: "lifestyle", label: "Lifestyle", emoji: "✨" },
+  { id: "beauty", label: "Beauty", emoji: "💄" },
+  { id: "tech", label: "Tech", emoji: "🚀" },
+  { id: "food", label: "Food", emoji: "🍕" },
+  { id: "finance", label: "Finance", emoji: "📈" },
+  { id: "gaming", label: "Gaming", emoji: "🎮" },
 ];
 
-const niches = ["All", "Fitness", "Business", "Comedy", "Education", "Lifestyle", "Beauty", "Tech", "Food"];
-const styles = ["All", "Curiosity", "Story", "Controversy", "Relatable", "Tips", "Transformation"];
+// Mock research results (will be replaced with Apify data)
+const getMockResults = (niche: string, minViews: number): ResearchedVideo[] => {
+  const templates = [
+    { hook: "The ${niche} mistake that's costing you everything", type: "curiosity" },
+    { hook: "I tried this for 30 days and now I can't stop", type: "story" },
+    { hook: "Nobody talks about this but it changed my ${niche}", type: "controversy" },
+    { hook: "Stop doing this immediately if you want results", type: "command" },
+    { hook: "The one thing successful people never tell you", type: "exclusivity" },
+    { hook: "POV: You finally figured out ${niche}", type: "relatable" },
+    { hook: "This ${niche} hack got me banned", type: "shock" },
+    { hook: "What if I told you everything you know is wrong?", type: "challenge" },
+    { hook: "The secret nobody wants to share about ${niche}", type: "curiosity" },
+    { hook: "I was doing ${niche} wrong for 10 years", type: "story" },
+  ];
 
-export default function LibraryPage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedNiche, setSelectedNiche] = useState("All");
-  const [selectedStyle, setSelectedStyle] = useState("All");
+  const creators = ["@fitnessguru", "@moneymaestro", "@techwhiz", "@lifestyleboss", "@comedyking"];
+  
+  return templates.map((t, i) => ({
+    id: `vid-${niche}-${i}`,
+    thumbnail: `https://picsum.photos/seed/${niche}${i}/400/600`,
+    views: Math.floor(minViews + Math.random() * 5000000),
+    likes: Math.floor(50000 + Math.random() * 500000),
+    comments: Math.floor(1000 + Math.random() * 50000),
+    shares: Math.floor(5000 + Math.random() * 100000),
+    creator: `${niche.charAt(0).toUpperCase() + niche.slice(1)} Creator ${i + 1}`,
+    creatorHandle: creators[i % creators.length],
+    hookText: t.hook.replace(/\$\{niche\}/g, niche),
+    hookType: t.type,
+    aiSummary: `A viral ${niche} video that uses the ${t.type} technique to hook viewers in the first 3 seconds.`,
+    videoUrl: `https://tiktok.com/@example/video/${Date.now() + i}`,
+    duration: 15 + Math.floor(Math.random() * 45),
+    niche,
+    postedAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
+  }));
+};
+
+export default function ResearchPage() {
+  // Research state
+  const [selectedNiche, setSelectedNiche] = useState("fitness");
+  const [customKeyword, setCustomKeyword] = useState("");
+  const [minViews, setMinViews] = useState([500000]);
+  const [dateRange, setDateRange] = useState("30days");
+  
+  // Results state
+  const [results, setResults] = useState<ResearchedVideo[]>([]);
+  const [isResearching, setIsResearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  
+  // UI state
+  const [selectedVideo, setSelectedVideo] = useState<ResearchedVideo | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [savedHooks, setSavedHooks] = useState<Set<string>>(new Set());
+  const [savedVideos, setSavedVideos] = useState<Set<string>>(new Set());
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  const filteredHooks = hookLibrary.filter(hook => {
-    const matchesSearch = hook.text.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesNiche = selectedNiche === "All" || hook.niche.toLowerCase() === selectedNiche.toLowerCase();
-    const matchesStyle = selectedStyle === "All" || hook.style.toLowerCase() === selectedStyle.toLowerCase();
-    return matchesSearch && matchesNiche && matchesStyle;
-  });
+  const formatNumber = (num: number): string => {
+    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+    return num.toString();
+  };
+
+  const formatDuration = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const doResearch = async () => {
+    setIsResearching(true);
+    setHasSearched(true);
+    
+    // TODO: Replace with actual Apify API call
+    // For now, simulate API delay and return mock data
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    const mockResults = getMockResults(selectedNiche, minViews[0]);
+    setResults(mockResults);
+    setIsResearching(false);
+    
+    toast.success(`Found ${mockResults.length} viral videos in ${selectedNiche}!`);
+  };
 
   const copyHook = (id: string, text: string) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
+    toast.success("Hook copied to clipboard!");
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const saveHook = (id: string) => {
-    setSavedHooks(prev => {
+  const saveVideo = (id: string) => {
+    setSavedVideos(prev => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
         newSet.delete(id);
+        toast("Removed from saved");
       } else {
         newSet.add(id);
+        toast.success("Saved to your library!");
       }
       return newSet;
     });
   };
 
-  return (
-    <div className="min-h-screen bg-black text-white p-4 sm:p-8">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        {/* Header hidden - using nav bar */}
+  const useHook = (hookText: string) => {
+    // Navigate to generate page with hook pre-filled
+    navigator.clipboard.writeText(hookText);
+    toast.success("Hook copied! Go to Generate to create variations.");
+  };
 
-        {/* Page Title */}
+  return (
+    <div className="min-h-screen bg-[#0A0A0A] text-white p-4 sm:p-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Hook Library</h1>
-          <p className="text-white/60">Browse 10,000+ proven viral hooks by niche</p>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-pink-500/20 to-purple-500/20 border border-pink-500/20">
+              <Search className="h-5 w-5 text-pink-400" />
+            </div>
+            <h1 className="text-3xl font-bold">TikTok Research</h1>
+            <Badge className="bg-pink-500/20 text-pink-300 border-pink-500/30">Beta</Badge>
+          </div>
+          <p className="text-white/60">Research viral TikToks in any niche and extract proven hooks</p>
         </div>
 
-        {/* Search and Filters */}
-        <Card className="bg-white/5 border-white/10 mb-8">
+        {/* Research Controls */}
+        <Card glass className="border-white/10 mb-8">
           <CardContent className="p-6">
-            <div className="flex flex-col sm:flex-row gap-4">
-              {/* Search */}
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+            <div className="space-y-6">
+              {/* Niche Selection */}
+              <div>
+                <label className="text-sm text-white/60 mb-3 block flex items-center gap-2">
+                  <Filter className="h-4 w-4" />
+                  Select Niche
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {niches.map((niche) => (
+                    <Badge
+                      key={niche.id}
+                      variant={selectedNiche === niche.id ? "default" : "outline"}
+                      className={`cursor-pointer text-sm py-1.5 px-3 transition-all ${
+                        selectedNiche === niche.id 
+                          ? "bg-gradient-to-r from-pink-500 to-purple-500 border-0 shadow-lg shadow-pink-500/20" 
+                          : "border-white/10 hover:border-white/30 bg-white/5"
+                      }`}
+                      onClick={() => setSelectedNiche(niche.id)}
+                    >
+                      <span className="mr-1">{niche.emoji}</span>
+                      {niche.label}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              {/* Custom Keyword (Optional) */}
+              <div>
+                <label className="text-sm text-white/60 mb-2 block">
+                  Custom keyword (optional)
+                </label>
                 <Input
-                  placeholder="Search hooks..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-white/5 border-white/10 text-white"
+                  placeholder="e.g., morning routine, weight loss, side hustle..."
+                  value={customKeyword}
+                  onChange={(e) => setCustomKeyword(e.target.value)}
+                  icon={<Search className="h-4 w-4" />}
                 />
               </div>
-            </div>
 
-            {/* Niche Filters */}
-            <div className="mt-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Filter className="h-4 w-4 text-white/40" />
-                <span className="text-sm text-white/60">Niche</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {niches.map((niche) => (
-                  <Badge
-                    key={niche}
-                    variant={selectedNiche === niche ? "default" : "outline"}
-                    className={`cursor-pointer ${
-                      selectedNiche === niche 
-                        ? "bg-pink-500 hover:bg-pink-600" 
-                        : "border-white/20 hover:border-white/40"
-                    }`}
-                    onClick={() => setSelectedNiche(niche)}
-                  >
-                    {niche}
-                  </Badge>
-                ))}
-              </div>
-            </div>
+              {/* Filters Row */}
+              <div className="grid sm:grid-cols-2 gap-6">
+                {/* Min Views */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-sm text-white/60 flex items-center gap-2">
+                      <Eye className="h-4 w-4" />
+                      Minimum Views
+                    </label>
+                    <span className="text-sm font-medium text-pink-400">
+                      {formatNumber(minViews[0])}+
+                    </span>
+                  </div>
+                  <Slider
+                    value={minViews}
+                    onValueChange={setMinViews}
+                    min={100000}
+                    max={10000000}
+                    step={100000}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-white/30 mt-1">
+                    <span>100K</span>
+                    <span>10M+</span>
+                  </div>
+                </div>
 
-            {/* Style Filters */}
-            <div className="mt-4">
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingUp className="h-4 w-4 text-white/40" />
-                <span className="text-sm text-white/60">Style</span>
+                {/* Date Range */}
+                <div>
+                  <label className="text-sm text-white/60 mb-2 block flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    Date Range
+                  </label>
+                  <div className="flex gap-2">
+                    {[
+                      { value: "7days", label: "7 days" },
+                      { value: "30days", label: "30 days" },
+                      { value: "90days", label: "90 days" },
+                      { value: "all", label: "All time" },
+                    ].map((option) => (
+                      <Badge
+                        key={option.value}
+                        variant={dateRange === option.value ? "default" : "outline"}
+                        className={`cursor-pointer ${
+                          dateRange === option.value 
+                            ? "bg-white/10 border-white/20" 
+                            : "border-white/10 hover:border-white/20"
+                        }`}
+                        onClick={() => setDateRange(option.value)}
+                      >
+                        {option.label}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {styles.map((style) => (
-                  <Badge
-                    key={style}
-                    variant={selectedStyle === style ? "default" : "outline"}
-                    className={`cursor-pointer ${
-                      selectedStyle === style 
-                        ? "bg-purple-500 hover:bg-purple-600" 
-                        : "border-white/20 hover:border-white/40"
-                    }`}
-                    onClick={() => setSelectedStyle(style)}
-                  >
-                    {style}
-                  </Badge>
-                ))}
-              </div>
+
+              {/* Research Button */}
+              <Button 
+                onClick={doResearch}
+                disabled={isResearching}
+                className="w-full h-12 bg-gradient-to-r from-pink-500 to-purple-500 hover:shadow-lg hover:shadow-pink-500/25 transition-all text-base font-medium"
+              >
+                {isResearching ? (
+                  <>
+                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                    Researching viral videos...
+                  </>
+                ) : (
+                  <>
+                    <Search className="h-5 w-5 mr-2" />
+                    Research 100+ Viral TikToks
+                    <ArrowRight className="h-5 w-5 ml-2" />
+                  </>
+                )}
+              </Button>
+
+              <p className="text-center text-white/40 text-xs">
+                This will analyze ~100 viral TikToks and extract proven hooks
+              </p>
             </div>
           </CardContent>
         </Card>
 
-        {/* Results Count */}
-        <div className="mb-4 text-white/60 text-sm">
-          Showing {filteredHooks.length} hooks
-        </div>
-
-        {/* Hook Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredHooks.map((hook, index) => (
-            <motion.div
-              key={hook.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-            >
-              <Card className="bg-white/5 border-white/10 hover:border-white/20 transition-all h-full">
-                <CardContent className="p-4">
-                  <p className="text-white mb-3 font-medium leading-relaxed">
-                    "{hook.text}"
-                  </p>
-                  
-                  <div className="flex items-center gap-2 mb-3">
-                    <NicheBadge niche={hook.niche} size="sm" />
-                    <Badge variant="outline" className="text-xs border-white/20 text-white/60">
-                      {hook.style}
-                    </Badge>
+        {/* Loading State */}
+        {isResearching && (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <Card key={i} className="bg-[#141414] border-white/5 overflow-hidden">
+                <div className="aspect-[9/16] bg-white/5 skeleton" />
+                <CardContent className="p-4 space-y-3">
+                  <div className="h-4 bg-white/5 rounded skeleton w-3/4" />
+                  <div className="h-3 bg-white/5 rounded skeleton w-1/2" />
+                  <div className="flex gap-2">
+                    <div className="h-6 bg-white/5 rounded-full skeleton w-16" />
+                    <div className="h-6 bg-white/5 rounded-full skeleton w-20" />
                   </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
 
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-white/40">
-                      {hook.saves.toLocaleString()} saves
-                    </span>
-                    <div className="flex gap-1">
+        {/* Results */}
+        {!isResearching && hasSearched && results.length > 0 && (
+          <>
+            {/* Results Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                  <Zap className="h-3 w-3 mr-1" />
+                  {results.length} videos found
+                </Badge>
+                <span className="text-white/40 text-sm">
+                  in {niches.find(n => n.id === selectedNiche)?.label}
+                </span>
+              </div>
+            </div>
+
+            {/* Results Grid */}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <AnimatePresence>
+                {results.map((video, index) => (
+                  <motion.div
+                    key={video.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: Math.min(index * 0.05, 0.3) }}
+                  >
+                    <Card 
+                      className="bg-[#141414] border-white/5 hover:border-white/20 transition-all cursor-pointer group overflow-hidden"
+                      onClick={() => setSelectedVideo(video)}
+                    >
+                      {/* Thumbnail */}
+                      <div className="relative aspect-[9/16] bg-[#0A0A0A] overflow-hidden">
+                        <img 
+                          src={video.thumbnail} 
+                          alt="" 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        {/* Overlay gradient */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                        
+                        {/* View count badge */}
+                        <div className="absolute top-3 left-3">
+                          <Badge className="bg-black/60 backdrop-blur-sm border-0 text-white">
+                            <Eye className="h-3 w-3 mr-1" />
+                            {formatNumber(video.views)}
+                          </Badge>
+                        </div>
+
+                        {/* Duration badge */}
+                        <div className="absolute top-3 right-3">
+                          <Badge className="bg-black/60 backdrop-blur-sm border-0 text-white text-xs">
+                            {formatDuration(video.duration)}
+                          </Badge>
+                        </div>
+
+                        {/* Play button overlay */}
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                            <Play className="h-6 w-6 text-white ml-1" fill="white" />
+                          </div>
+                        </div>
+
+                        {/* Hook text at bottom */}
+                        <div className="absolute bottom-0 left-0 right-0 p-4">
+                          <p className="text-white font-medium text-sm leading-tight line-clamp-2">
+                            "{video.hookText}"
+                          </p>
+                        </div>
+                      </div>
+
+                      <CardContent className="p-4">
+                        {/* Creator info */}
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-pink-500 to-purple-500" />
+                          <span className="text-white/60 text-sm truncate">{video.creatorHandle}</span>
+                        </div>
+
+                        {/* Tags */}
+                        <div className="flex items-center gap-2 mb-3 flex-wrap">
+                          <Badge className="bg-pink-500/10 text-pink-400 border-pink-500/20 text-xs">
+                            {video.hookType}
+                          </Badge>
+                          <NicheBadge niche={video.niche} size="sm" />
+                        </div>
+
+                        {/* Stats */}
+                        <div className="flex items-center gap-4 text-xs text-white/40">
+                          <span className="flex items-center gap-1">
+                            <Heart className="h-3 w-3" />
+                            {formatNumber(video.likes)}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <MessageCircle className="h-3 w-3" />
+                            {formatNumber(video.comments)}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Share2 className="h-3 w-3" />
+                            {formatNumber(video.shares)}
+                          </span>
+                        </div>
+
+                        {/* Quick actions */}
+                        <div className="flex gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              copyHook(video.id, video.hookText);
+                            }}
+                            className="flex-1 h-8 text-xs bg-white/5 hover:bg-white/10"
+                          >
+                            {copiedId === video.id ? (
+                              <><Check className="h-3 w-3 mr-1 text-green-400" /> Copied</>
+                            ) : (
+                              <><Copy className="h-3 w-3 mr-1" /> Copy Hook</>
+                            )}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              saveVideo(video.id);
+                            }}
+                            className={`h-8 w-8 p-0 ${
+                              savedVideos.has(video.id) 
+                                ? "text-pink-500 bg-pink-500/10" 
+                                : "bg-white/5 hover:bg-white/10"
+                            }`}
+                          >
+                            <Bookmark className={`h-4 w-4 ${savedVideos.has(video.id) ? "fill-current" : ""}`} />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          </>
+        )}
+
+        {/* Empty State */}
+        {!isResearching && !hasSearched && (
+          <div className="text-center py-20">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-pink-500/20 to-purple-500/20 flex items-center justify-center">
+              <TrendingUp className="h-10 w-10 text-pink-400" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">Research what actually goes viral</h3>
+            <p className="text-white/50 max-w-md mx-auto mb-6">
+              Select a niche above and we'll analyze 100+ viral TikToks to extract the hooks that made them successful.
+            </p>
+            <div className="flex items-center justify-center gap-2 text-sm text-white/40">
+              <Flame className="h-4 w-4 text-orange-400" />
+              Real data from videos with 500K+ views
+            </div>
+          </div>
+        )}
+
+        {/* Video Detail Modal */}
+        <Dialog open={!!selectedVideo} onOpenChange={() => setSelectedVideo(null)}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            {selectedVideo && (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-purple-500" />
+                    <div>
+                      <div className="font-semibold">{selectedVideo.creator}</div>
+                      <div className="text-sm text-white/50 font-normal">{selectedVideo.creatorHandle}</div>
+                    </div>
+                  </DialogTitle>
+                </DialogHeader>
+
+                <div className="space-y-6">
+                  {/* Hook Section */}
+                  <div className="p-4 bg-gradient-to-br from-pink-500/10 to-purple-500/10 rounded-xl border border-pink-500/20">
+                    <div className="flex items-center gap-2 text-pink-400 text-sm mb-2">
+                      <Sparkles className="h-4 w-4" />
+                      Extracted Hook
+                    </div>
+                    <p className="text-xl font-medium text-white">"{selectedVideo.hookText}"</p>
+                    
+                    <div className="flex gap-2 mt-4">
                       <Button
                         size="sm"
-                        variant="ghost"
-                        onClick={() => copyHook(hook.id, hook.text)}
-                        className="h-8 w-8 p-0 text-white/60 hover:text-white"
+                        onClick={() => copyHook(selectedVideo.id, selectedVideo.hookText)}
+                        className="bg-white/10 hover:bg-white/20"
                       >
-                        {copiedId === hook.id ? (
-                          <Check className="h-4 w-4 text-green-500" />
+                        {copiedId === selectedVideo.id ? (
+                          <><Check className="h-4 w-4 mr-2 text-green-400" /> Copied!</>
                         ) : (
-                          <Copy className="h-4 w-4" />
+                          <><Copy className="h-4 w-4 mr-2" /> Copy Hook</>
                         )}
                       </Button>
                       <Button
                         size="sm"
-                        variant="ghost"
-                        onClick={() => saveHook(hook.id)}
-                        className={`h-8 w-8 p-0 ${
-                          savedHooks.has(hook.id) 
-                            ? "text-pink-500" 
-                            : "text-white/60 hover:text-white"
-                        }`}
+                        onClick={() => useHook(selectedVideo.hookText)}
+                        className="bg-gradient-to-r from-pink-500 to-purple-500"
                       >
-                        <Bookmark className={`h-4 w-4 ${savedHooks.has(hook.id) ? "fill-current" : ""}`} />
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Generate Similar
                       </Button>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
 
-        {/* Load More */}
-        {filteredHooks.length > 0 && (
-          <div className="mt-8 text-center">
-            <Button variant="outline" className="border-white/20">
-              Load More Hooks
-            </Button>
-          </div>
-        )}
+                  {/* Stats */}
+                  <div className="grid grid-cols-4 gap-4">
+                    <div className="text-center p-3 bg-white/5 rounded-lg">
+                      <div className="text-lg font-bold">{formatNumber(selectedVideo.views)}</div>
+                      <div className="text-xs text-white/50">Views</div>
+                    </div>
+                    <div className="text-center p-3 bg-white/5 rounded-lg">
+                      <div className="text-lg font-bold">{formatNumber(selectedVideo.likes)}</div>
+                      <div className="text-xs text-white/50">Likes</div>
+                    </div>
+                    <div className="text-center p-3 bg-white/5 rounded-lg">
+                      <div className="text-lg font-bold">{formatNumber(selectedVideo.comments)}</div>
+                      <div className="text-xs text-white/50">Comments</div>
+                    </div>
+                    <div className="text-center p-3 bg-white/5 rounded-lg">
+                      <div className="text-lg font-bold">{formatNumber(selectedVideo.shares)}</div>
+                      <div className="text-xs text-white/50">Shares</div>
+                    </div>
+                  </div>
 
-        {/* Empty State */}
-        {filteredHooks.length === 0 && (
-          <div className="text-center py-16">
-            <Search className="h-12 w-12 mx-auto mb-4 text-white/20" />
-            <p className="text-white/40">No hooks found matching your filters</p>
-          </div>
-        )}
+                  {/* Hook Analysis */}
+                  <div>
+                    <h4 className="font-medium mb-3 flex items-center gap-2">
+                      <Zap className="h-4 w-4 text-yellow-400" />
+                      Why This Hook Works
+                    </h4>
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-3 p-3 bg-white/5 rounded-lg">
+                        <Badge className="bg-pink-500/20 text-pink-300 border-0 shrink-0">
+                          {selectedVideo.hookType}
+                        </Badge>
+                        <p className="text-white/70 text-sm">{selectedVideo.aiSummary}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      className="flex-1 border-white/10"
+                      onClick={() => window.open(selectedVideo.videoUrl, '_blank')}
+                    >
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Watch on TikTok
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => saveVideo(selectedVideo.id)}
+                      className={`border-white/10 ${savedVideos.has(selectedVideo.id) ? "text-pink-500" : ""}`}
+                    >
+                      <Bookmark className={`h-4 w-4 mr-2 ${savedVideos.has(selectedVideo.id) ? "fill-current" : ""}`} />
+                      {savedVideos.has(selectedVideo.id) ? "Saved" : "Save"}
+                    </Button>
+                  </div>
+                </div>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

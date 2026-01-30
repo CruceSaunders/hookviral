@@ -51,10 +51,29 @@ export default function RewritePage() {
     
     setIsLoading(true);
     
-    // Simulated API call - replace with actual API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+      // Call real API endpoint
+      const response = await fetch("/api/hooks/rewrite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          hook: originalHook,
+          improvements: selectedImprovements,
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.rewrites && data.rewrites.length > 0) {
+        setRewrites(data.rewrites);
+        setIsLoading(false);
+        return;
+      }
+    } catch (error) {
+      console.error("API call failed, using fallback:", error);
+    }
     
-    // Mock response
+    // Fallback mock response if API fails
     const mockRewrites: RewrittenHook[] = [
       {
         text: `The ${originalHook.split(' ').slice(1, 3).join(' ')} secret that changed everything`,

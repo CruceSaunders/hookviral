@@ -228,3 +228,44 @@
   -webkit-mask-composite: xor;
   mask-composite: exclude;
 }
+
+/* Slow animations for hero backgrounds */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 8s ease-in-out infinite;
+}
+
+/* Gradient conic for hero */
+.bg-gradient-conic {
+  background: conic-gradient(from 0deg, var(--tw-gradient-from), var(--tw-gradient-to));
+}
+
+/* Skeleton loading animation */
+@keyframes skeleton {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+  background-size: 200px 100%;
+  animation: skeleton 1.5s infinite;
+}
+
+/* Safe area for mobile nav */
+.safe-area-inset-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
