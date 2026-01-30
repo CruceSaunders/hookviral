@@ -1,19 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { 
   Wand2, 
   Library, 
   Bookmark, 
   History,
-  Settings,
   Zap,
-  Sparkles
+  Sparkles,
+  LogOut,
+  User
 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/lib/auth-context";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const navItems = [
   { href: "/generate", label: "Generate", icon: Wand2 },
@@ -29,6 +38,17 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-black">
@@ -71,12 +91,41 @@ export default function DashboardLayout({
                 <Zap className="h-3 w-3 mr-1" />
                 Free Plan
               </Badge>
-              <Button 
-                size="sm" 
-                className="bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-90"
-              >
-                Upgrade
-              </Button>
+              
+              <Link href="/pricing">
+                <Button 
+                  size="sm" 
+                  className="bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-90"
+                >
+                  Upgrade
+                </Button>
+              </Link>
+
+              {/* User Menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="text-white/60 hover:text-white">
+                    <User className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-gray-900 border-white/10">
+                  {user && (
+                    <>
+                      <div className="px-2 py-1.5 text-sm text-white/60">
+                        {user.email}
+                      </div>
+                      <DropdownMenuSeparator className="bg-white/10" />
+                    </>
+                  )}
+                  <DropdownMenuItem 
+                    onClick={handleLogout}
+                    className="text-white/80 hover:text-white cursor-pointer"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
