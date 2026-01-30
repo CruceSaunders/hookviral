@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,54 +10,44 @@ import {
   Copy, 
   Check, 
   Trash2, 
-  FileText,
-  Share2
+  Share2,
+  Sparkles
 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Demo data - in production this comes from Supabase
-const demoSavedHooks = [
-  { 
-    id: "1", 
-    text: "I tried this for 30 days and now I can't stop", 
-    niche: "Fitness", 
-    savedAt: "2 hours ago",
-    source: "generated"
-  },
-  { 
-    id: "2", 
-    text: "The business mistake that cost me everything", 
-    niche: "Business", 
-    savedAt: "Yesterday",
-    source: "generated"
-  },
-  { 
-    id: "3", 
-    text: "Nobody talks about this but it changed my life", 
-    niche: "Lifestyle", 
-    savedAt: "2 days ago",
-    source: "library"
-  },
-  { 
-    id: "4", 
-    text: "iPhone settings you need to change right now", 
-    niche: "Tech", 
-    savedAt: "3 days ago",
-    source: "library"
-  },
-  { 
-    id: "5", 
-    text: "The morning routine that fixed my anxiety", 
-    niche: "Lifestyle", 
-    savedAt: "1 week ago",
-    source: "generated"
-  },
-];
+interface SavedHook {
+  id: string;
+  text: string;
+  niche: string;
+  savedAt: string;
+  source: string;
+}
 
 export default function SavedPage() {
-  const [savedHooks, setSavedHooks] = useState(demoSavedHooks);
+  const [savedHooks, setSavedHooks] = useState<SavedHook[]>([]);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Load saved hooks from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem("hookviral_saved");
+    if (stored) {
+      try {
+        setSavedHooks(JSON.parse(stored));
+      } catch (e) {
+        console.error("Error loading saved hooks:", e);
+      }
+    }
+    setIsLoaded(true);
+  }, []);
+
+  // Save to localStorage whenever hooks change
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem("hookviral_saved", JSON.stringify(savedHooks));
+    }
+  }, [savedHooks, isLoaded]);
 
   const copyHook = (id: string, text: string) => {
     navigator.clipboard.writeText(text);
@@ -82,26 +72,26 @@ export default function SavedPage() {
             <h1 className="text-3xl font-bold mb-2">Saved Hooks</h1>
             <p className="text-white/60">Your collection of favorite hooks</p>
           </div>
-          {savedHooks.length > 0 && (
-            <Badge variant="outline" className="border-pink-500/30 text-pink-400">
-              <Bookmark className="h-3 w-3 mr-1 fill-current" />
-              {savedHooks.length} saved
-            </Badge>
-          )}
+          <Badge variant="outline" className="border-pink-500/30 text-pink-400">
+            <Bookmark className="h-3 w-3 mr-1" />
+            {savedHooks.length} saved
+          </Badge>
         </div>
 
         {savedHooks.length === 0 ? (
           <Card className="bg-white/5 border-white/10">
-            <CardContent className="py-16 text-center">
-              <Bookmark className="h-12 w-12 mx-auto mb-4 text-white/20" />
-              <h3 className="text-lg font-medium mb-2">No saved hooks yet</h3>
-              <p className="text-white/40 mb-6">
-                Start saving hooks from the generator or library
+            <CardContent className="p-12 text-center">
+              <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
+                <Bookmark className="h-8 w-8 text-white/40" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">No saved hooks yet</h3>
+              <p className="text-white/60 mb-6">
+                Generate hooks and click the bookmark icon to save your favorites here.
               </p>
-              <div className="flex gap-4 justify-center">
+              <div className="flex gap-3 justify-center">
                 <Link href="/generate">
                   <Button className="bg-gradient-to-r from-pink-500 to-purple-500">
-                    <Plus className="h-4 w-4 mr-2" />
+                    <Sparkles className="h-4 w-4 mr-2" />
                     Generate Hooks
                   </Button>
                 </Link>
@@ -114,60 +104,56 @@ export default function SavedPage() {
             </CardContent>
           </Card>
         ) : (
-          <AnimatePresence>
-            <div className="space-y-4">
-              {savedHooks.map((hook, index) => (
+          <div className="space-y-4">
+            <AnimatePresence>
+              {savedHooks.map((hook) => (
                 <motion.div
                   key={hook.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, x: -100 }}
-                  transition={{ delay: index * 0.05 }}
                 >
                   <Card className="bg-white/5 border-white/10 hover:border-white/20 transition-colors">
-                    <CardContent className="p-4">
+                    <CardContent className="p-6">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
-                          <p className="text-lg font-medium mb-2">"{hook.text}"</p>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <Badge variant="outline" className="text-xs border-white/20">
+                          <p className="text-lg font-medium mb-3">&ldquo;{hook.text}&rdquo;</p>
+                          <div className="flex items-center gap-2 text-sm">
+                            <Badge variant="secondary" className="bg-white/10">
                               {hook.niche}
                             </Badge>
-                            <Badge variant="outline" className="text-xs border-white/10 text-white/40">
+                            <Badge variant="outline" className="border-white/10 text-white/60">
                               {hook.source === "generated" ? "Generated" : "From Library"}
                             </Badge>
-                            <span className="text-xs text-white/40">{hook.savedAt}</span>
+                            <span className="text-white/40">{hook.savedAt}</span>
                           </div>
                         </div>
-                        <div className="flex gap-1">
+                        <div className="flex gap-2">
                           <Button
-                            size="sm"
                             variant="ghost"
+                            size="icon"
                             onClick={() => copyHook(hook.id, hook.text)}
                             className="text-white/60 hover:text-white"
-                            title="Copy hook"
                           >
                             {copiedId === hook.id ? (
-                              <Check className="h-4 w-4 text-green-400" />
+                              <Check className="h-4 w-4 text-green-500" />
                             ) : (
                               <Copy className="h-4 w-4" />
                             )}
                           </Button>
                           <Button
-                            size="sm"
                             variant="ghost"
+                            size="icon"
                             onClick={() => shareHook(hook.text)}
-                            className="text-white/60 hover:text-white hover:bg-blue-500/20"
-                            title="Share on Twitter"
+                            className="text-white/60 hover:text-white"
                           >
                             <Share2 className="h-4 w-4" />
                           </Button>
                           <Button
-                            size="sm"
                             variant="ghost"
+                            size="icon"
                             onClick={() => deleteHook(hook.id)}
-                            className="text-white/60 hover:text-red-400 hover:bg-red-500/20"
-                            title="Remove from saved"
+                            className="text-white/60 hover:text-red-400"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -177,17 +163,7 @@ export default function SavedPage() {
                   </Card>
                 </motion.div>
               ))}
-            </div>
-          </AnimatePresence>
-        )}
-
-        {/* Quick tip */}
-        {savedHooks.length > 0 && (
-          <div className="mt-8 p-4 bg-white/5 border border-white/10 rounded-lg">
-            <p className="text-sm text-white/60">
-              💡 <strong className="text-white/80">Pro tip:</strong> Use saved hooks as templates. 
-              Generate new hooks with similar styles by copying and using them as inspiration.
-            </p>
+            </AnimatePresence>
           </div>
         )}
       </div>

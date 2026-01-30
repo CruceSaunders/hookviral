@@ -33,6 +33,7 @@ interface GeneratedHook {
   style: string;
   explanation: string;
   rating: number;
+  wordCount?: number;
 }
 
 // Niche presets with optimized settings for each content type
@@ -93,76 +94,67 @@ export default function GeneratePage() {
     if (!topic.trim()) return;
     
     setIsLoading(true);
+    setHooks([]);
     
-    // Simulated API call - replace with actual API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Mock response - in production this comes from OpenAI
-    const mockHooks: GeneratedHook[] = [
-      {
-        text: `The ${selectedNiche.toLowerCase()} mistake that's costing you everything`,
-        style: "curiosity",
-        explanation: "Creates urgency by implying they're making a costly error",
-        rating: 9
-      },
-      {
-        text: `I tried this for 30 days and now I can't stop`,
-        style: "story",
-        explanation: "Personal transformation story hooks viewers emotionally",
-        rating: 8
-      },
-      {
-        text: `Nobody talks about this but it changed everything`,
-        style: "controversy",
-        explanation: "Implies secret knowledge that mainstream ignores",
-        rating: 9
-      },
-      {
-        text: `What if I told you everything you know about ${topic} is wrong?`,
-        style: "shock",
-        explanation: "Challenges existing beliefs, creates cognitive dissonance",
-        rating: 8
-      },
-      {
-        text: `The one thing successful people never tell you about ${topic}`,
-        style: "curiosity",
-        explanation: "Implies insider knowledge and exclusivity",
-        rating: 9
-      },
-      {
-        text: `Stop doing this immediately if you want results`,
-        style: "controversy",
-        explanation: "Direct command with implied negative consequences",
-        rating: 7
-      },
-      {
-        text: `I was doing ${topic} completely wrong until I learned this`,
-        style: "story",
-        explanation: "Relatable mistake + promise of solution",
-        rating: 8
-      },
-      {
-        text: `The ${topic} hack that got me banned from TikTok`,
-        style: "shock",
-        explanation: "Implies something so powerful it's almost forbidden",
-        rating: 9
-      },
-      {
-        text: `Why ${topic} is easier than you think (controversial take)`,
-        style: "controversy",
-        explanation: "Challenges difficulty perception, invites debate",
-        rating: 7
-      },
-      {
-        text: `Here's what actually works for ${topic} (not what influencers say)`,
-        style: "curiosity",
-        explanation: "Positions as authentic truth vs fake advice",
-        rating: 8
-      },
-    ];
-    
-    setHooks(mockHooks);
-    setIsLoading(false);
+    try {
+      // Map spicy level (1-10) to API spice level (1-4)
+      const spiceLevel = Math.ceil(spicyLevel[0] / 2.5);
+      
+      const response = await fetch("/api/hooks/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic,
+          niche: selectedNiche.toLowerCase(),
+          style: selectedStyle,
+          spiceLevel: Math.max(1, Math.min(4, spiceLevel)),
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.hooks && data.hooks.length > 0) {
+        // Add rating and wordCount if not present
+        const processedHooks = data.hooks.map((h: any) => ({
+          text: h.text,
+          style: h.style || selectedStyle,
+          explanation: h.explanation || h.why || "Optimized for engagement",
+          rating: h.rating || Math.floor(Math.random() * 3) + 7,
+          wordCount: h.wordCount || h.text.split(' ').length,
+        }));
+        
+        setHooks(processedHooks);
+        
+        // Save to history in localStorage
+        saveToHistory(topic, selectedNiche, processedHooks);
+      }
+    } catch (error) {
+      console.error("Failed to generate hooks:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Save generation to history
+  const saveToHistory = (topic: string, niche: string, hooks: GeneratedHook[]) => {
+    try {
+      const stored = localStorage.getItem("hookviral_history");
+      const history = stored ? JSON.parse(stored) : [];
+      
+      const newEntry = {
+        id: Date.now().toString(),
+        topic,
+        niche,
+        generatedAt: "Just now",
+        hooks: hooks.map(h => h.text),
+      };
+      
+      // Add to front, limit to 50 entries
+      const updated = [newEntry, ...history].slice(0, 50);
+      localStorage.setItem("hookviral_history", JSON.stringify(updated));
+    } catch (e) {
+      console.error("Error saving to history:", e);
+    }
   };
 
   const copyHook = (index: number, text: string) => {
@@ -172,15 +164,56 @@ export default function GeneratePage() {
   };
 
   const saveHook = (index: number) => {
+    const hook = hooks[index];
+    if (!hook) return;
+    
+    // Toggle in local state
     setSavedHooks(prev => {
       const newSet = new Set(prev);
       if (newSet.has(index)) {
         newSet.delete(index);
+        // Remove from localStorage
+        removeFromSaved(hook.text);
       } else {
         newSet.add(index);
+        // Add to localStorage
+        addToSaved(hook.text, selectedNiche);
       }
       return newSet;
     });
+  };
+  
+  const addToSaved = (text: string, niche: string) => {
+    try {
+      const stored = localStorage.getItem("hookviral_saved");
+      const saved = stored ? JSON.parse(stored) : [];
+      
+      const newHook = {
+        id: Date.now().toString(),
+        text,
+        niche,
+        savedAt: "Just now",
+        source: "generated",
+      };
+      
+      const updated = [newHook, ...saved];
+      localStorage.setItem("hookviral_saved", JSON.stringify(updated));
+    } catch (e) {
+      console.error("Error saving hook:", e);
+    }
+  };
+  
+  const removeFromSaved = (text: string) => {
+    try {
+      const stored = localStorage.getItem("hookviral_saved");
+      if (!stored) return;
+      
+      const saved = JSON.parse(stored);
+      const updated = saved.filter((h: any) => h.text !== text);
+      localStorage.setItem("hookviral_saved", JSON.stringify(updated));
+    } catch (e) {
+      console.error("Error removing hook:", e);
+    }
   };
 
   const shortenHook = async (index: number, hookText: string) => {
