@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Copy, Check, Sparkles, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { NicheBadge } from "@/components/niche-badge";
 
 // Daily hooks - rotate based on date
 const dailyHooks = [
@@ -80,9 +81,7 @@ export function HookOfTheDay() {
                   <span className="text-sm font-medium text-pink-400">
                     Hook of the Day
                   </span>
-                  <Badge variant="outline" className="text-xs border-white/20">
-                    {todayHook.niche}
-                  </Badge>
+                  <NicheBadge niche={todayHook.niche} size="sm" />
                 </div>
                 <p className="text-lg font-medium text-white mb-2">
                   "{todayHook.text}"
