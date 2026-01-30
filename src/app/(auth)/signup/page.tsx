@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Loader2, Mail, Lock, User, AlertCircle, Check } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { useAuth } from "@/lib/auth-context";
+import { storeUserSignup } from "@/lib/store-signup";
 
 function SignupForm() {
   const router = useRouter();
@@ -37,6 +38,8 @@ function SignupForm() {
     
     try {
       await signUp(email, password);
+      // Store user in Firestore for your records
+      await storeUserSignup(email, email, name, plan || "free");
       router.push("/generate");
     } catch (err) {
       // Error is handled by auth context

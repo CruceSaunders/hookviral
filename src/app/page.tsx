@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { storeEmailSignup } from "@/lib/store-signup";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -73,9 +74,10 @@ export default function LandingPage() {
     e.preventDefault();
     if (!email) return;
     
-    // Store email (in production, send to backend)
+    // Store email to Firebase
+    await storeEmailSignup(email, "popup_discount");
+    
     localStorage.setItem("hookviralEmailPopup", "true");
-    localStorage.setItem("hookviralEmail", email);
     setEmailSubmitted(true);
     
     setTimeout(() => {
