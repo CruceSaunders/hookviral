@@ -22,7 +22,8 @@ import {
   FileText,
   Scissors,
   ArrowRight,
-  Lightbulb
+  Lightbulb,
+  Share2
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { HookOfTheDay } from "@/components/hook-of-the-day";
@@ -214,6 +215,12 @@ export default function GeneratePage() {
         return newMap;
       });
     }
+  };
+
+  const shareHook = (hookText: string) => {
+    const tweetText = `🎣 TikTok hook idea:\n\n"${hookText}"\n\nGenerated with HookViral ⚡`;
+    const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+    window.open(tweetUrl, '_blank', 'width=550,height=420');
   };
 
   return (
@@ -483,6 +490,7 @@ export default function GeneratePage() {
                                       variant="ghost"
                                       onClick={() => copyHook(index, hook.text)}
                                       className="text-white/60 hover:text-white"
+                                      title="Copy hook"
                                     >
                                       {copiedIndex === index ? (
                                         <Check className="h-4 w-4 text-green-500" />
@@ -495,8 +503,18 @@ export default function GeneratePage() {
                                       variant="ghost"
                                       onClick={() => saveHook(index)}
                                       className={savedHooks.has(index) ? "text-pink-500" : "text-white/60 hover:text-white"}
+                                      title="Save hook"
                                     >
                                       <Bookmark className={`h-4 w-4 ${savedHooks.has(index) ? "fill-current" : ""}`} />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={() => shareHook(hook.text)}
+                                      className="text-white/60 hover:text-white hover:bg-blue-500/20"
+                                      title="Share on Twitter"
+                                    >
+                                      <Share2 className="h-4 w-4" />
                                     </Button>
                                   </div>
                                 </div>
