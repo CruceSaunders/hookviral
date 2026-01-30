@@ -307,7 +307,7 @@ export default function LandingPage() {
       <TrustedMarquee />
 
       {/* Features */}
-      <section ref={featuresRef} className="py-20 px-4">
+      <section ref={featuresRef} className="py-24 px-4">
         <div className="max-w-5xl mx-auto">
           <motion.div 
             className="text-center mb-14"
@@ -344,7 +344,7 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonials */}
-      <section ref={testimonialsRef} className="py-20 px-4 border-y border-white/5">
+      <section ref={testimonialsRef} className="py-24 px-4 border-y border-white/5">
         <div className="max-w-6xl mx-auto">
           <motion.div 
             className="text-center mb-14"
@@ -387,7 +387,7 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="py-20 px-4">
+      <section id="pricing" className="py-24 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold mb-4">
@@ -450,7 +450,7 @@ export default function LandingPage() {
       </section>
 
       {/* FAQ */}
-      <section className="py-20 px-4 border-t border-white/5">
+      <section className="py-24 px-4 border-t border-white/5">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold mb-4">
@@ -498,7 +498,7 @@ export default function LandingPage() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-20 px-4">
+      <section className="py-24 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
