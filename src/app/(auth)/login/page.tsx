@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Mail, Lock } from "lucide-react";
+import { Logo } from "@/components/logo";
 // import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
@@ -60,8 +61,11 @@ export default function LoginPage() {
   };
 
   return (
-    <Card className="w-full max-w-md bg-white/5 border-white/10">
+    <Card glass className="w-full max-w-md border-white/10">
       <CardHeader className="text-center">
+        <div className="flex justify-center mb-4">
+          <Logo size="lg" />
+        </div>
         <CardTitle className="text-2xl text-white">Welcome back</CardTitle>
         <CardDescription className="text-white/60">
           Sign in to continue creating viral hooks
@@ -108,7 +112,8 @@ export default function LoginPage() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-90"
+            variant="gradient"
+            className="w-full"
           >
             {isLoading ? (
               <>
