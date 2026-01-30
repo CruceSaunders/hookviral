@@ -26,6 +26,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { HookOfTheDay } from "@/components/hook-of-the-day";
 import { ScriptExpander } from "@/components/script-expander";
+import { NicheBadge } from "@/components/niche-badge";
 
 interface GeneratedHook {
   text: string;
@@ -232,7 +233,7 @@ export default function GeneratePage() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Input Panel */}
           <div className="lg:col-span-1 space-y-6">
-            <Card className="bg-white/5 border-white/10">
+            <Card glass className="border-white/10">
               <CardHeader>
                 <CardTitle className="text-lg">Generate Hooks</CardTitle>
               </CardHeader>
@@ -353,7 +354,8 @@ export default function GeneratePage() {
                 <Button 
                   onClick={generateHooks}
                   disabled={!topic.trim() || isLoading}
-                  className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-90"
+                  variant="gradient"
+                  className="w-full shadow-lg shadow-pink-500/20"
                 >
                   {isLoading ? (
                     <>
@@ -373,7 +375,7 @@ export default function GeneratePage() {
 
           {/* Results Panel */}
           <div className="lg:col-span-2">
-            <Card className="bg-white/5 border-white/10">
+            <Card glass className="border-white/10">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center justify-between">
                   <span>Generated Hooks</span>
