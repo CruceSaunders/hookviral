@@ -16,11 +16,7 @@ import {
 import { Logo } from "@/components/logo";
 import { AnimatedMeshGradient, FloatingParticles, GradientText } from "@/components/animated-background";
 import { HeroMockup } from "@/components/hero-mockup";
-
-// Trusted by logos (placeholder names)
-const trustedBy = [
-  "Creator Academy", "TikTok Mastery", "Viral Vault", "Content Club", "Growth Lab"
-];
+import { TrustedMarquee } from "@/components/trusted-marquee";
 
 // Features with icons
 const features = [
@@ -307,25 +303,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Trusted By */}
-      <section className="py-12 border-y border-white/5">
-        <div className="max-w-6xl mx-auto px-4">
-          <p className="text-center text-white/40 text-sm mb-6">TRUSTED BY CREATORS FROM</p>
-          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
-            {trustedBy.map((name, i) => (
-              <motion.span
-                key={name}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.1 * i }}
-                className="text-white/30 font-semibold text-lg"
-              >
-                {name}
-              </motion.span>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Trusted By - Infinite Marquee */}
+      <TrustedMarquee />
 
       {/* Features */}
       <section ref={featuresRef} className="py-24 px-4">
